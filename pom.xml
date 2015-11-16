@@ -138,4 +138,27 @@
 		</dependency>
 		<!-- spring end -->
 	</dependencies>
+	
+	<distributionManagement>
+    	<repository>
+			<id>nexus-releases</id>
+			<url>http://10.100.142.37:8080/nexus/content/repositories/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>nexus-snapshots</id>
+			<url>http://10.100.142.37:8080/nexus/content/repositories/snapshots</url>
+		</snapshotRepository>
+    </distributionManagement>
+    
+     <repositories>
+		<repository>
+                 <id>nexus</id>
+                 <name>Nexus</name>
+                 <url>http://10.100.142.37:8080/nexus/content/groups/public</url>
+                <releases><enabled>true</enabled> </releases>
+                 <snapshots><enabled>true</enabled></snapshots>
+                 <layout>default</layout>
+        </repository>
+	</repositories>
+	
 </project>
