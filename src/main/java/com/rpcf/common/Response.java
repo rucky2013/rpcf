@@ -1,6 +1,8 @@
 package com.rpcf.common;
 
-public class Response {
+import java.io.Serializable;
+
+public class Response implements Serializable{
 	
 	private Long id;
 	
@@ -10,6 +12,8 @@ public class Response {
 	
 	private Object result;
 	
+	private Object attach;
+	
 	public Response() {
 		
 	}
@@ -18,6 +22,13 @@ public class Response {
 		return id;
 	}
 
+	public Object getAttach() {
+		return attach;
+	}
+
+	public void setAttach(Object attach) {
+		this.attach = attach;
+	}
 
 	public void setId(Long id) {
 		this.id = id;

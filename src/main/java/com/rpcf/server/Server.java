@@ -1,5 +1,6 @@
 package com.rpcf.server;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.security.Policy.Parameters;
 import java.util.ArrayList;
@@ -19,6 +20,9 @@ import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+import org.springframework.util.StringUtils;
+
+import cn.godzilla.common.ReturnCodeEnum;
 
 import com.rpcf.common.Entry;
 import com.rpcf.common.Request;
@@ -28,6 +32,7 @@ import com.rpcf.network.handler.Decoder;
 import com.rpcf.network.handler.Encoder;
 import com.rpcf.network.handler.ParametersHandler;
 import com.rpcf.serialize.Serializer;
+import com.rpcf.util.RpcfClassLoader;
 
 public class Server {
 	private final int port;
@@ -109,14 +114,64 @@ public class Server {
 			Request request = null;
 			try {
 				request = Serializer.deserializer(entry.getColumn(), Request.class);
-
+				
+				//为了将web（consumer）端sid 传送到 service（provider）端
+				Object attach = request.getAttach();
+				//初始化所有threadlocal
+				initThreadLocals();
+				setServiceSid(attach);
 				Object result = methodSupport.invoke(request.getInterfaceName(), request.getInvokeMethod(), request.getParameterTypes().toArray(clazzArray), request.getParameters().toArray());
-
-				entry.getRow().write(Serializer.serialize(Response.success(result, request.getId())));
+				clearServiceSid();
+				//销毁所有threadlocal
+				destroyThreadLocals();
+				Response response = Response.success(result, request.getId());
+				//以后再也不用enum 当作 序列化传递对象
+				if(result instanceof ReturnCodeEnum) {
+					response.setAttach(((ReturnCodeEnum) result).getData());
+				}
+				byte[] resultBytes = Serializer.serialize(response);
+				//System.out.println(result.getClass() + ",resultBytes size:" + resultBytes.length);
+				entry.getRow().write(resultBytes);
 			} catch (Exception e) {
 				e.printStackTrace();
 				entry.getRow().write(this.getFailure("方法调用失败(没有此方法)" + e.getMessage(), request.getId()));
 			}
+		}
+	}
+
+	private void destroyThreadLocals() {
+		try {
+			RpcfClassLoader.invokeStaticMethod("cn.godzilla.util.GodzillaServiceApplication", "destroyThreadLocals", null);
+		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | ClassNotFoundException e) {
+			System.out.println("方法调用失败GodzillaServiceApplication.destroyThreadLocals");
+		}
+	}
+
+	private void initThreadLocals() {
+		try {
+			RpcfClassLoader.invokeStaticMethod("cn.godzilla.util.GodzillaServiceApplication", "initThreadLocals", null);
+		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | ClassNotFoundException e) {
+			System.out.println("方法调用失败GodzillaServiceApplication.initThreadLocals");
+		}
+	}
+
+	//为了将web（consumer）端sid 传送到 service（provider）端
+	private void setServiceSid(Object attach) {
+		if(attach==null||StringUtils.isEmpty(attach)) return;
+		Object[] parameters = {attach};
+		try {
+			RpcfClassLoader.invokeStaticMethod("cn.godzilla.util.GodzillaServiceApplication", "setSid", parameters);
+		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | ClassNotFoundException e) {
+			System.out.println("方法调用失败GodzillaServiceApplication.setSid");
+		}
+		
+	}
+	
+	private void clearServiceSid() {
+		try {
+			RpcfClassLoader.invokeStaticMethod("cn.godzilla.util.GodzillaServiceApplication", "clearSid", null);
+		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | ClassNotFoundException e) {
+			System.out.println("方法调用失败GodzillaServiceApplication.clearSid");
 		}
 	}
 

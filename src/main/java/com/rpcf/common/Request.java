@@ -16,6 +16,8 @@ public class Request {
 	
 	private List<?> parameters;
 	
+	private Object attach;
+	
 	private Channel channel;
 
 	public Long getId() {
@@ -24,6 +26,14 @@ public class Request {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+	
+	public Object getAttach() {
+		return attach;
+	}
+
+	public void setAttach(Object attach) {
+		this.attach = attach;
 	}
 
 	public String getInvokeMethod() {

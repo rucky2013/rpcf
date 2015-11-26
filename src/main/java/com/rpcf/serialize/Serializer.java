@@ -26,7 +26,7 @@ public class Serializer {
 		}
 		
 		Kryo kryo = kryoThreadLocal.get();
-		ByteArrayOutputStream stream = new ByteArrayOutputStream(2000);
+		ByteArrayOutputStream stream = new ByteArrayOutputStream(20000);
 		Output output = new Output(stream);
 		kryo.writeObject(output, object);
 		output.close();

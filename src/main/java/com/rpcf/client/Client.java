@@ -30,6 +30,10 @@ public class Client {
 
 	private Channel channel;
 	
+	public Channel getChannel() {
+		return channel;
+	}
+
 	public static Map<String, Client> clients = new ConcurrentHashMap<String, Client>(); //ip:port
 
 	public Client(String ip, int port) throws Throwable {
@@ -62,11 +66,10 @@ public class Client {
 
 	public void received(Channel channel, byte[] message) {
 		Response response = Serializer.deserializer(message, Response.class);
-		Long id = response.getId();
 		DefaultFuture.received(response);
 	}
 	
-	public DefaultFuture send(Request request) {
+	public DefaultFuture send(Request request) throws Exception {
 		DefaultFuture future = new DefaultFuture(request);
 		byte[] message = Serializer.serialize(request);
 		channel.write(message);

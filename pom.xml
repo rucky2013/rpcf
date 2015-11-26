@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.rpcf</groupId>
@@ -11,13 +12,14 @@
 
 	<scm>
 		<developerConnection>scm:git:ssh://git@github.com/mauersu/rpcf.git</developerConnection>
-	  <tag>rpcf-all-0.0.1.Beta1</tag>
-  </scm>
+		<tag>HEAD</tag>
+	</scm>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<netty.version>3.7.0.Final</netty.version>
 		<spring.version>4.1.6.RELEASE</spring.version>
+		<godzilla.version>2.0.0.Beta8-SNAPSHOT</godzilla.version>
 	</properties>
 
 	<build>
@@ -105,6 +107,13 @@
 	</build>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>cn.godzilla</groupId>
+			<artifactId>godzilla-common</artifactId>
+			<version>${godzilla.version}</version>
+		</dependency>
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -138,9 +147,9 @@
 		</dependency>
 		<!-- spring end -->
 	</dependencies>
-	
+
 	<distributionManagement>
-    	<repository>
+		<repository>
 			<id>nexus-releases</id>
 			<url>http://10.100.142.37:8080/nexus/content/repositories/releases</url>
 		</repository>
@@ -148,17 +157,21 @@
 			<id>nexus-snapshots</id>
 			<url>http://10.100.142.37:8080/nexus/content/repositories/snapshots</url>
 		</snapshotRepository>
-    </distributionManagement>
-    
-     <repositories>
+	</distributionManagement>
+
+	<repositories>
 		<repository>
-                 <id>nexus</id>
-                 <name>Nexus</name>
-                 <url>http://10.100.142.37:8080/nexus/content/groups/public</url>
-                <releases><enabled>true</enabled> </releases>
-                 <snapshots><enabled>true</enabled></snapshots>
-                 <layout>default</layout>
-        </repository>
+			<id>nexus</id>
+			<name>Nexus</name>
+			<url>http://10.100.142.37:8080/nexus/content/groups/public</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<layout>default</layout>
+		</repository>
 	</repositories>
-	
+
 </project>
