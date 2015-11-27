@@ -3,7 +3,7 @@
 
 	<groupId>com.rpcf</groupId>
 	<artifactId>rpcf-all</artifactId>
-	<version>0.0.2.Release-SNAPSHOT</version>
+	<version>0.0.2.RELEASE</version>
 	<packaging>jar</packaging>
 
 	<name>rpcf-all</name>
@@ -11,7 +11,7 @@
 
 	<scm>
 		<developerConnection>scm:git:ssh://git@github.com/mauersu/rpcf.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>rpcf-all-0.0.2.RELEASE</tag>
 	</scm>
 
 	<properties>
