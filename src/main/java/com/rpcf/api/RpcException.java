@@ -2,26 +2,19 @@ package com.rpcf.api;
 
 public class RpcException extends RuntimeException {
 	
-	private String message = "";
-	
 	public RpcException () {
 		super();
 	}
 	
 	public RpcException (String message) {
-		this.message = message;
+		super(message);
 	}
 	
 	public RpcException(String message, Throwable cause){
-		super(cause);
-		this.message = message;
+		super(message,cause);
 	}
 	
 	public RpcException (Throwable cause) {
 		super(cause);
-	}
-	
-	public String getMessage() {
-		return this.message;
 	}
 }

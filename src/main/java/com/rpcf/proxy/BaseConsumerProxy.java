@@ -1,13 +1,10 @@
 package com.rpcf.proxy;
 
 import java.lang.reflect.InvocationTargetException;
-import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
-
-import cn.godzilla.common.ReturnCodeEnum;
 
 import com.rpcf.api.RpcException;
 import com.rpcf.client.Client;
@@ -63,7 +60,12 @@ public class BaseConsumerProxy {
 				}
 			}
 			if(client.getChannel().isOpen()) {
-				future = client.send(request);
+				while(true) {
+					if(client.getChannel().isConnected()) {
+						future = client.send(request);
+						break;
+					}
+				}
 				break;
 			} else {
 				Client.clients.remove(ip+":"+ RpcUtil.getRpcPort());
@@ -76,12 +78,25 @@ public class BaseConsumerProxy {
 		Response response = future.get();
 		Object result = response.getResult();
 		//以后再也不用enum 当作 序列化传递对象
-		if(result instanceof ReturnCodeEnum) {
-			((ReturnCodeEnum) result).setData(response.getAttach());
+		if(result instanceof Enum) {
+			setData(result, response.getAttach());
 		}
 		return result;
 	}
-
+	
+	private void setData(Object resultcodeEnum, Object attach) {
+		try {
+			if(attach==null) return ;
+			Object[] parameters = {attach};
+			Class[] parameterTypes = {Object.class};
+			RpcfClassLoader.invokeClassMethod(resultcodeEnum, "cn.godzilla.common.ReturnCodeEnum", "setData", parameters, parameterTypes); 
+			return ;
+		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | ClassNotFoundException e) {
+			System.out.println("调用ReturnCodeEnum.setData()失败");
+			return;
+		}
+	}
+	
 	//为了将web（consumer）端sid 传送到 service（provider）端
 	private Object getWebSid() {
 		try {

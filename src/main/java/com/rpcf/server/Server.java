@@ -2,7 +2,6 @@ package com.rpcf.server;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
-import java.security.Policy.Parameters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingDeque;
@@ -10,8 +9,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicLong;
-
-import javax.xml.transform.Result;
 
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
@@ -21,8 +18,6 @@ import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.springframework.util.StringUtils;
-
-import cn.godzilla.common.ReturnCodeEnum;
 
 import com.rpcf.common.Entry;
 import com.rpcf.common.Request;
@@ -126,8 +121,8 @@ public class Server {
 				destroyThreadLocals();
 				Response response = Response.success(result, request.getId());
 				//以后再也不用enum 当作 序列化传递对象
-				if(result instanceof ReturnCodeEnum) {
-					response.setAttach(((ReturnCodeEnum) result).getData());
+				if(result instanceof Enum) {
+					response.setAttach(getData(result));
 				}
 				byte[] resultBytes = Serializer.serialize(response);
 				//System.out.println(result.getClass() + ",resultBytes size:" + resultBytes.length);
@@ -136,6 +131,15 @@ public class Server {
 				e.printStackTrace();
 				entry.getRow().write(this.getFailure("方法调用失败(没有此方法)" + e.getMessage(), request.getId()));
 			}
+		}
+	}
+	
+	private Object getData(Object resultcodeEnum) {
+		try {
+			return RpcfClassLoader.invokeClassMethod(resultcodeEnum, "cn.godzilla.common.ReturnCodeEnum", "getData", null, null);
+		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | ClassNotFoundException e) {
+			System.out.println("调用ReturnCodeEnum.getData()失败");
+			return null;
 		}
 	}
 
